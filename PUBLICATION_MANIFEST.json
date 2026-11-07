@@ -1,24 +1,24 @@
 {
   "format_version": 1,
-  "purpose": "Explicit reviewed payload inventory; no source Git objects or native game data included.",
+  "purpose": "Exact reviewed public payload inventory; independent history, including explicitly requested complete ROM-derived text disassembly.",
   "source_revision": "2debf7cbdd50414141f0b4505e1b371bc9f62b46",
-  "scope": "Selected public reference snapshot; not a replacement for private canon.",
+  "scope": "Selected public research reference plus generated disassembly; not a replacement for private canon or a grant of game-content rights.",
   "licensing": "Undecided; see NOTICE.md.",
   "hash_policy": "SHA-256 over file bytes; this manifest is excluded from its own inventory.",
   "files": [
     {
       "path": ".gitignore",
-      "sha256": "8658987ac5076049a9fa771950959ac0604bf24288c0924bd4a127b53094fb12",
+      "sha256": "25eb9dbb89fc9a38058129b45f468115f045ab85df6fd423d6e12eede5aa1eae",
       "origin": "public-specific documentation or configuration"
     },
     {
       "path": "NOTICE.md",
-      "sha256": "77ad65d5a2b6e1c5d9f34eb89eee2537a2265d35e5830204ef0abb5833b8bd6d",
+      "sha256": "4e64889fe4caccd6291ecd31b45b9daecc07108c4cb9c6f5483778a5e5d10cc2",
       "origin": "public-specific documentation or configuration"
     },
     {
       "path": "README.md",
-      "sha256": "8386703ebd606d2e90d4413653b017fed26298a88933d8f3115540a6de01dd1e",
+      "sha256": "219a9c22ecd260f454732b46e57dd8461cc7a691ce2fe023a05f4e4ff4ac3dbc",
       "origin": "public-specific documentation or configuration"
     },
     {
@@ -36,18 +36,98 @@
       "adapted_for_export": false
     },
     {
+      "path": "disassembly/Makefile",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "da197e188f624039154e4540731aac16f27895d2e002ee374d233792bba0ec37"
+    },
+    {
+      "path": "disassembly/README.md",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "461b0429357d2e20ed9de9f560809c1fd5481c3b78aed95bec7194b24d693617"
+    },
+    {
+      "path": "disassembly/bank_000.asm",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "efba5d63b5c2b6acd77a4887d9ae53b31141c0576498e4b55320c308e1cb024e"
+    },
+    {
+      "path": "disassembly/bank_001.asm",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "9c05d2e7de55c4e019f3d143f3a47d3099c50910098cbbd53c17962d47d84ca6"
+    },
+    {
+      "path": "disassembly/bank_002.asm",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "58b1eaa3427eead30197d3d7def3268326e7871c6f6d1d5e938f2a6e0e523e36"
+    },
+    {
+      "path": "disassembly/bank_003.asm",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "ecd660072ea97a72e181795181d705fa85e4d4a8cf331f771844b537f275a465"
+    },
+    {
+      "path": "disassembly/bank_004.asm",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "777fc7023809a9ff7126c1c2003303dcf399c249fc3d3e75a874867739ad7f1d"
+    },
+    {
+      "path": "disassembly/bank_005.asm",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "2b51186643b069d64c8d54ba4658206242c6f6a4bbc423a0e935e8ea5a88c522"
+    },
+    {
+      "path": "disassembly/bank_006.asm",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "ab1ed7eea0d1eed01b22e58a4f80774da5db781d3ca982d147c62461cd7ea7c5"
+    },
+    {
+      "path": "disassembly/bank_007.asm",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "99b41aac2e16fc02341cc8996ee1d067af5b6d2e53b639e19c04be245871c776"
+    },
+    {
+      "path": "disassembly/game.asm",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "4df6e9e30d8cbc9a6674fd06164e7485ebe6ec9ad20ea9183ead26b3dfdec988"
+    },
+    {
+      "path": "disassembly/gargoyles_quest.sym",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "0d86b096a50ee6f31285cb6be90918a2c7730c2542a1001767d7c4eb915fc460"
+    },
+    {
+      "path": "disassembly/hardware.inc",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "0fdc838feed0911844610ba229912e08f3ddec4a93b1a0a7ae320bd80bc1f4f9"
+    },
+    {
+      "path": "disassembly/provenance.json",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "f6d8541e07cd41dfcb1b747808b56ba71bd195c64cd184defb7676682db4ff29"
+    },
+    {
+      "path": "disassembly/third_party/HARDWARE-CC0.txt",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673"
+    },
+    {
+      "path": "disassembly/third_party/MGBDIS-LICENSE.txt",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "8f9ea251eb9eaa3560be46ce5adb7e190bbc890cff6e5eb532df0ccacefa0fa4"
+    },
+    {
       "path": "docs/publication-review.md",
-      "sha256": "b0f95eec809011cc223ebeee860e9c8c2a1c0b249e9a3f2b9010ad81081cd091",
+      "sha256": "7b2a44628f0927a24f796014073467658c13519e21b1f498a970e1eaa847e181",
       "origin": "public-specific documentation or configuration"
     },
     {
       "path": "docs/publication.md",
-      "sha256": "fa836cf516dd227293ee779b366041e407e7d944ed1424acb1cea07e7a9e80c1",
+      "sha256": "b3132a2121b47b92702b5cd988dd1950f568f7607ff41ea79ba09bd2ef9dfde4",
       "origin": "public-specific documentation or configuration"
     },
     {
       "path": "docs/research.md",
-      "sha256": "d42040d1e15dcfc0d1de4844124f2f2590fb2bfea1a4b5b72bbaa845c35356b5",
+      "sha256": "e49688303b506a46e6681a3d4c27eaf64c759d2e4a1d235fe1d401cd75266a32",
       "origin": "public-specific documentation or configuration"
     },
     {
@@ -98,6 +178,11 @@
       "adapted_for_export": false
     },
     {
+      "path": "tests/test_disassembly_baseline.py",
+      "origin": "Reviewed generated disassembly, pinned support material, or public-specific documentation/test",
+      "sha256": "4cfd8578e463759486f918ea1490d01ab88fc4f288499e9a60f95fd2e0c49ccd"
+    },
+    {
       "path": "tools/decode_overworld_cache.py",
       "sha256": "ea742cd62ed63a2f6971ae2b3747e177b6a0a27a8f2477d37a8f0ac17310ce45",
       "source_path": "tools/decode_overworld_cache.py",
@@ -125,5 +210,6 @@
       "source_sha256": "587d20c38004b585ead87faa579cb31931f21ccdd30057e0e8f41a1d1baf0831",
       "adapted_for_export": true
     }
-  ]
+  ],
+  "disassembly_scope": "Assembly encodes all original ROM code/data and can reconstruct the game; binary ROMs, native states, separate media, and build products are excluded."
 }

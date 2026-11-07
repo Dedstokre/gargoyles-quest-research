@@ -1,11 +1,12 @@
 # Gargoyle's Quest — reverse-engineering reference
 
-A small technical reference for the USA/Europe Game Boy release: analyst-assigned debugger symbols, executable behavior models, and local analysis utilities.
+A technical reference for the USA/Europe Game Boy release: analyst-assigned debugger symbols, executable behavior models, local analysis utilities, and a generated disassembly baseline.
 This is not the original source code, a playable game, or the separate Godot remake.
 
 ## Start here
 
 - [Research guide and model limitations](docs/research.md).
+- [Complete generated disassembly, local build instructions, and scope limits](disassembly/README.md).
 - [Machine-readable symbol evidence](canon/symbols/symbols.json), retaining classification, confidence, and scope.
 - [Gearboy symbol file](canon/symbols/gearboy_symbols.sym) for debugger navigation.
 - [Publication boundary and provenance](docs/publication.md).
@@ -55,8 +56,10 @@ Never upload locally generated maps, dumps, or other extracted content without a
 
 ## What is deliberately absent
 
-No ROMs, save states, graphics, audio, screenshots, video, bulk map/animation exports, dialogue dumps, memory dumps, copied third-party references, local agent configuration, or private Git history are included.
+No binary ROMs, save states, standalone graphics/audio, screenshots, video, separate bulk map/animation exports, decoded dialogue dumps, memory dumps, unrelated third-party reference trees, local agent configuration, or private Git history are included.
 Compact numeric behavior parameters, animation/frame identifiers, and synthetic or focused regression expectations remain in the source models and tests.
+The separately requested `disassembly/` baseline goes beyond the original tools-only boundary: its assembly encodes the complete game code and raw data, including graphics/sound/text bytes, and can reconstruct the ROM locally.
+Reviewed hardware definitions and their third-party notices are included only as necessary build support.
 Excluding the ROM itself is not a legal guarantee; see [NOTICE.md](NOTICE.md).
 
 ## Publication status

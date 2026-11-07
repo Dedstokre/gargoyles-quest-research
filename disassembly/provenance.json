@@ -1,0 +1,97 @@
+{
+  "schema_version": 1,
+  "kind": "Complete ROM-derived generated text disassembly; not original source and not copyright-cleared",
+  "evidence": "Observed \u2014 Very High for full-byte round-trip and the narrow source check; code/data meanings outside tested contexts remain tool-inferred",
+  "source_research_revision": "2debf7cbdd50414141f0b4505e1b371bc9f62b46",
+  "rom": {
+    "region": "USA, Europe",
+    "size": 131072,
+    "crc32": "0030E61F",
+    "md5": "63e3f5f4b90f17bdf6d2f2aed515e248",
+    "sha1": "1da5834cd7cea711195cd8581614c5022da768b7",
+    "sha256": "ad6f9fe97a40418279d3b834a64d9c6c52c0da209f430718f2bd02611892326f"
+  },
+  "tooling": {
+    "mgbdis": {
+      "repository": "https://github.com/mattcurrie/mgbdis",
+      "revision": "95d951a9881a0d7ff1a42a94d1be175da92b1777",
+      "source_archive_sha256": "0dcf9310e69f9f6c72e1843ec1c1409324e59dc02d9d071e9398e7c4f93cb6da"
+    },
+    "rgbds": {
+      "repository": "https://github.com/gbdev/rgbds",
+      "version": "1.0.4",
+      "asset": "rgbds-linux-x86_64.tar.xz",
+      "sha256": "3e19e50ea602e316be709160acaf0a708b1fa6d32d219ec541f244442895dbb7",
+      "digest_verified_against_github_release_metadata": true
+    }
+  },
+  "hardware_include": {
+    "repository": "https://github.com/gbdev/hardware.inc",
+    "revision": "f8c7a649fe663c4550db6c86a31644852c2dd080",
+    "license": "CC0-1.0",
+    "sha256": "0fdc838feed0911844610ba229912e08f3ddec4a93b1a0a7ae320bd80bc1f4f9",
+    "note": "Replaces the older bundled MGBDIS hardware.inc; the reviewed public Makefile build and isolated pre/post-rgbfix test both reproduce the verified original."
+  },
+  "generation": {
+    "rom_basename": "gargoyles_quest.gb",
+    "symbol_basename": "gargoyles_quest.sym",
+    "flags": [
+      "--print-hex",
+      "--uppercase-hex",
+      "--align-operands"
+    ],
+    "source_profile": "Current ROM labels merged into the prepared seed; .image regions changed to .data declarations with hexadecimal 0x10 bytes per line",
+    "profile_sha256": "0d86b096a50ee6f31285cb6be90918a2c7730c2542a1001767d7c4eb915fc460",
+    "analyst_labels": 133,
+    "typed_regions": 18,
+    "banks": 8
+  },
+  "local_baseline": {
+    "profile": "Text-only listing; original image regions represented as data declarations",
+    "seed_sha256": "0d86b096a50ee6f31285cb6be90918a2c7730c2542a1001767d7c4eb915fc460",
+    "rom_size": 131072,
+    "original_sha256": "ad6f9fe97a40418279d3b834a64d9c6c52c0da209f430718f2bd02611892326f",
+    "rebuilt_sha256": "ad6f9fe97a40418279d3b834a64d9c6c52c0da209f430718f2bd02611892326f",
+    "byte_identical": true,
+    "build_seconds": 0.137,
+    "labels": 133,
+    "typed_regions": 18,
+    "mgbdis_revision": "95d951a9881a0d7ff1a42a94d1be175da92b1777",
+    "rgbds_version": "1.0.4",
+    "linker_output_matches_before_rgbfix": true,
+    "bounded_routine_check": {
+      "bank": 1,
+      "start": "44DF",
+      "end_exclusive": "44F4",
+      "bytes": 21,
+      "instruction_count": 7,
+      "expected_pipeline_matches": true,
+      "evidence": "Observed \u2014 Very High, narrow source-byte comparison; no new gameplay semantics or whole-ROM boundary proof"
+    }
+  },
+  "publication_exclusions": [
+    "original or rebuilt ROM binary",
+    "native save state",
+    "object/linker map/generated symbol files",
+    "separate extracted graphics, audio or decoded dialogue files",
+    "private research history or unrelated evidence"
+  ],
+  "limitations": [
+    "Complete game code/data is encoded in assembly and can rebuild the original; text-only is not copyright-free.",
+    "Automatic instruction boundaries, generic labels and banked cross-references are not a whole-ROM semantic audit.",
+    "Includes raw data bytes for graphics and other material, not only executable code."
+  ],
+  "public_source_verification": {
+    "makefile_build_passed": true,
+    "pre_rgbfix_expected_size_sha256_match": true,
+    "post_rgbfix_expected_size_sha256_match": true,
+    "source_and_build_tests_passed": 5,
+    "existing_model_tests_passed": 74,
+    "rgbds_absent_behavior": "Four source-only tests pass and the isolated build test explicitly skips.",
+    "built_binaries_are_local_only": true
+  },
+  "support_notices": {
+    "MGBDIS-LICENSE.txt": "8f9ea251eb9eaa3560be46ce5adb7e190bbc890cff6e5eb532df0ccacefa0fa4",
+    "HARDWARE-CC0.txt": "36ffd9dc085d529a7e60e1276d73ae5a030b020313e6c5408593a6ae2af39673"
+  }
+}

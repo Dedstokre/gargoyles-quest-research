@@ -9,7 +9,7 @@ The owner subsequently approved both exact code and reference/test file sets and
 No private Git history is imported.
 Licensing remains undecided, and no license grant has been added.
 
-## Included content
+## Initial reference content
 
 - 20 explicitly inventoried text files, including the manifest itself.
 - 12 source-derived files: six byte-identical copies and six documented export-only adaptations.
@@ -20,7 +20,7 @@ The source files and source hashes were checked against private revision `2debf7
 No source Git objects, binary/media files, symlinks, native states, bulk extracted datasets, or copied reference trees are included.
 Small numeric behavior tables and focused test expectations remain intentionally included, as described in the README.
 
-## Verification performed
+## Initial reference verification
 
 | Check | Result |
 |---|---|
@@ -68,3 +68,23 @@ Passing model regressions do not resolve the [documented model gaps](research.md
 - Publish only this independently prepared folder, never the private research branch, tags, or history.
 
 Changing any payload requires refreshing the manifest and repeating the relevant content, integrity, and dependency checks before upload.
+
+## Generated-disassembly addition: review boundary
+
+The owner separately requested a locally verified MGBDIS baseline and generated assembly for public inclusion.
+The candidate expands the payload from 20 to 37 files: 17 new files plus seven edits to existing allowlist, policy, documentation, and manifest files.
+Its eight bank listings encode all ROM bytes as instructions/data; this is a deliberate change from the initial conservative tools-only boundary, not an extension of that boundary by file-extension tricks.
+No original/rebuilt binary ROM, native state, separate extracted PNG/audio, object, linker map/symbol output, or private history is eligible for publication.
+
+The original prepared image profile and text-only profile both rebuilt the complete 131072-byte original ROM byte-for-byte with pinned MGBDIS and RGBDS 1.0.4.
+The public source variant uses a newer pinned CC0 `hardware.inc` and independently passed the generated Makefile rebuild and an isolated check before and after `rgbfix`.
+Expected full-image SHA-256 is `ad6f9fe97a40418279d3b834a64d9c6c52c0da209f430718f2bd02611892326f`.
+Five new source/build tests and the existing 74 model tests pass; RGBDS-free execution explicitly skips only the optional build test.
+The seven-instruction/21-byte B1:`$44DF-$44F3` source comparison is the only narrow semantic-navigation cross-check added; this is not a whole-ROM instruction-boundary audit or a productivity benchmark.
+
+The upstream MGBDIS MIT and hardware.inc CC0 notices are preserved as support-file notices and do not license the game's contents.
+Licensing for the research project remains undecided, and redistribution legality is not certified.
+Final preparation checks pass for all 37 eligible text files, 36 manifest payload hashes, 26 local Markdown links and heading fragments, support-file provenance/notices, and Git exclusion of existing local ROM/object/map/linker-symbol outputs.
+Focused private-key/token/email/private-path/encoded-payload screening found no matching signatures; the original scan limitations still apply.
+Original-ROM identity verification remains unchanged, source canon verification passes with 979 links and 65 JSON files, and source health still reports only the recognized deferred `WARN REL-001`.
+The original two-commit publication approval does not authorize these new file sets or commit messages.

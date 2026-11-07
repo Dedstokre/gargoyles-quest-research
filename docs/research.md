@@ -91,3 +91,10 @@ No behavior fixes or new gameplay research were performed while preparing the ex
 
 This snapshot cannot independently reproduce private checkpoint-backed conclusions without the omitted evidence or a fresh local investigation.
 That limitation is deliberate, not evidence that the omitted files are safe to publish.
+
+## Generated disassembly baseline
+
+The separately requested [MGBDIS baseline](../disassembly/README.md) adds a locally rebuildable, complete ROM-derived text representation.
+**Observed — Very High:** its full-byte rebuild was verified against the original target image, including before `rgbfix`; a narrow seven-instruction player-update source check also passed.
+These are byte-preservation/source-correspondence results, not new gameplay conclusions or a proof of all automatic instruction boundaries and banked targets.
+Private native states, runtime observations, and evidence classification remain distinct from generated assembly.

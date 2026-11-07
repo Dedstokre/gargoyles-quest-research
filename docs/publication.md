@@ -3,19 +3,22 @@
 ## Scope
 
 This repository is a standalone selection from private research revision `2debf7cbdd50414141f0b4505e1b371bc9f62b46`, with independently initialized Git history.
-It contains reviewed symbols and evidence summaries, selected source models/tests, four standalone utilities, and public-specific documentation.
+Its initial snapshot contains reviewed symbols and evidence summaries, selected source models/tests, four standalone utilities, and public-specific documentation.
+The owner subsequently requested the separately reviewed complete generated disassembly described below.
 It is an optional public snapshot, not a replacement authority for the original repository's canon.
 No original research file or Git history is deleted, rewritten, or made public by creating this folder.
 
 The export deliberately does not mirror `canon/`, `runtime/`, or any other private directory wholesale.
 File extensions alone do not determine safety: JSON, CSV, Markdown, and source code can contain copied game content, credentials, or personal details.
-Compact numeric behavior parameters and focused test expectations are retained; bulk copied game datasets are not.
+Compact numeric behavior parameters and focused test expectations are retained in the initial reference snapshot.
+The expanded `disassembly/` scope explicitly includes complete ROM-derived code/data as assembly; the absence of binary/media files must not be mistaken for absence of game content.
 
 ## Included file policy
 
 [PUBLICATION_MANIFEST.json](../PUBLICATION_MANIFEST.json) lists every included payload file and its SHA-256 hash, with original source paths/hashes where applicable.
 The manifest does not hash itself.
-Paths are relative; no private filesystem root, Git author identity, remote URL, or source history is included.
+Paths are relative; no private filesystem root or private Git history is included.
+Public upstream repository URLs identify tool and support-file provenance.
 The source revision hash identifies provenance but does not ship the source repository's Git objects.
 
 The root `.gitignore` uses a default-deny allowlist: only the individually reviewed paths are eligible for normal Git addition.
@@ -38,12 +41,21 @@ No inference is promoted by copying it into this folder.
 ## Excluded material
 
 - The private `.git` directory and all private commit/branch/tag history.
-- Original ROMs, patches, native states, save files, raw memory/VRAM/framebuffer/APU dumps, and bundled disassembly output.
-- Extracted artwork, screenshots, sound/music recordings, video, decoded dialogue, and bulk map/animation datasets.
+- Original or rebuilt ROM binaries, patches, native states, save files, and raw memory/VRAM/framebuffer/APU dumps.
+- Separate extracted artwork, screenshots, sound/music recordings, video, decoded dialogue, and bulk map/animation export files.
 - Raw experimental captures, large research logs, archives, generated outputs, and private checkpoint-backed fixtures.
-- Copied third-party reference trees, emulator/disassembler source bundles, fonts, manuals, guides, and PDFs.
+- Unrelated copied third-party reference trees, emulator/disassembler source bundles, fonts, manuals, guides, and PDFs.
 - Local editor/agent/provider configuration, environment files, caches, machine-specific paths, and private task/campaign handoffs.
 - Tests and tools whose omitted private fixtures or dependencies would make this small export incomplete or misleading.
+
+## Expanded generated-disassembly scope
+
+The owner requested a local MGBDIS baseline and generated assembly for public inclusion after discussing established public disassembly projects and the distribution implications.
+The eight-bank [disassembly baseline](../disassembly/README.md) contains all ROM bytes as code/data and can reconstruct the game locally; it is not covered by the original tools-only exclusion policy.
+It includes pinned hardware definitions and the relevant third-party notices, but no original/rebuilt ROM binary or separate extracted media.
+MGBDIS automatic code/data classification and inferred labels are not promoted to canonical facts by successful rebuilding.
+Round-trip hashes, tool pins, generation settings, and narrow verification are recorded in `disassembly/provenance.json`.
+New exact staged file sets and commit messages still require approval before this addition is committed or uploaded; prior initial-publication approval does not carry over.
 
 ## GitHub publication and future updates
 
