@@ -1,0 +1,1485 @@
+{
+  "project": "Gargoyle's Quest (USA, Europe) GB reverse engineering",
+  "naming_note": "Names are analyst-inferred unless explicitly stated otherwise; the ROM does not contain source-level symbol names.",
+  "symbols": [
+    {
+      "address": "C100",
+      "name": "gameplayGridBase",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "In the tested transition, the post-clear builder restores the C100-C1FF grid consumed by demonstrated player-contact probes",
+        "Observed — Very High: B1:$4276 ground read (address ADD at $4275, scratch store $4277) and B1:$41E1 side read / $41E2 scratch store"
+      ],
+      "notes": "Inference — Very High: nibble-masked local indexing yields 16x16 world-pixel collision cells. Cache wrapping and class meanings are scoped to the demonstrated consumers, not a global terrain model."
+    },
+    {
+      "address": "C200",
+      "name": "playerFlags",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$4658/$4685 sets/clears bit 5 for Right/Left",
+        "B1:$4168-$416D and B1:$41CE-$41D3 are separate wall-latch paths that XOR bit 5",
+        "Experiment D dynamically records the B1:$41CE-$41DE path",
+        "REL37: matched 16-piece player frame-$07 OAM becomes hidden at C200.bit4 set while player remains on-screen; REL38 catches B1:$6EDE clearing bit4",
+        "B2:$6A2E-$6A30 tests C200 bit4 and returns from the shared object renderer when set",
+        "save state C200=$21",
+        "REL11: B1:$4455-$4489 clears C200 bit7 each collision pass and sets it on interior-$08 contact; shared renderer folds object-flag bits $A0 into OAM attributes (live triple $21->$20, $A1->$A0, $01->$00)"
+      ],
+      "notes": "Player-record bit0 is active/present; bit5 is facingRight. REL37/38 establish bit4 as the shared renderer visibility gate in the tested post-hit path; the B1:$6EDE clear occurs at C20B=$67 and OAM returns at the next sampled completed video-frame boundary. Separately, B1:$4F23 gates world-entity updates on +$00 bit0 and skips this dispatcher path when bit2 is set; do not generalize bit2 to universal non-interactivity. REL11 resolves the open downstream-presentation role: C200 bit7 becomes OAM priority bit7 (OBJ behind BG); it is not C36A bit7.",
+      "external_evidence": [
+        {
+          "source": "Data Crystal - Gargoyle's Quest/RAM map",
+          "claim": "C200 - Start of object data",
+          "classification": "direct corroboration",
+          "checked_on": "2026-10-04"
+        }
+      ]
+    },
+    {
+      "address": "C203",
+      "name": "playerWorldYLo",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$4711 subtracts upward pixel delta from C203/C204",
+        "B1:$4769 adds downward pixel delta",
+        "save state C203/C204=$1228"
+      ]
+    },
+    {
+      "address": "C204",
+      "name": "playerWorldYHi",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "carry/borrow partner of C203",
+        "overworld encounter grid uses low nibble of C204"
+      ]
+    },
+    {
+      "address": "C206",
+      "name": "playerWorldXLo",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$4667 adds horizontal pixel delta to C206/C207",
+        "B1:$4694 subtracts it",
+        "save state C206/C207=$10D0"
+      ]
+    },
+    {
+      "address": "C207",
+      "name": "playerWorldXHi",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "carry/borrow partner of C206",
+        "overworld encounter grid uses low nibble of C207"
+      ]
+    },
+    {
+      "address": "C209",
+      "name": "objectActionSelector",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$4F23 reads world-entity record +$09 and uses it as a byte index into handler-address tables at B1:$4FBF/$500F",
+        "Original table bytes resolve selector $09 to B1:$53A9 and selector $37 to B1:$643E",
+        "REL15: selector $01 uses B1:$4FC0=$78 and B1:$5010=$50 to resolve to B1:$5078 (ROM table mapping Observed — Very High; actor correlation Inference — High)",
+        "REL14: selector $26 uses B1:$4FE5=$E4 and B1:$5035=$59 to resolve to B1:$59E4 (ROM table mapping Observed — Very High; actor/placement correlation Inference — High)"
+      ],
+      "notes": "Confirmed for world-entity dispatch; handler/action selection, not a demonstrated generic AI-script bytecode selector. Do not assume the same meaning for every player/projectile record type. REL14 selector $26 and REL15 selector $01 are distinct actor paths; their behavior does not generalize from selector alone."
+    },
+    {
+      "address": "C20A",
+      "name": "playerHp",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B0:$0326 copies DF15 here",
+        "B1:$6E1F subtracts collision damage from this byte",
+        "B0:$23B9 renders current-vs-max HP"
+      ]
+    },
+    {
+      "address": "C20B",
+      "name": "playerFieldC20B",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "B1:$44F4 bit7 suppresses movement in the tested player-update path",
+        "REL35: B1:$6E89 writes $88 after one nonlethal contact; B1:$6E8B decrements it",
+        "REL36: B1:$6E04 nonzero-C20B branch skips HP subtraction on its zero-C667 path and reaches B1:$6E8B; B1:$6E96 tests bit7",
+        "REL36-38: below $78, B1:$6ED5 tests decremented C20B.bit3; B1:$6EDB/$6EDE sets/clears C200.bit4; REL38 dynamically catches RES 4,(HL) at B1:$6EDE with C20B=$67",
+        "REL42: one later selector-$26 contact reaches B1:$6E10 with C20B=$66 and Z=0 before JR NZ,$6E8B; the post-branch state was not captured",
+        "B2:$6A2E-$6A30 returns from the shared object renderer when C200.bit4 is set"
+      ],
+      "notes": "Inference is scoped to the observed B1 damage routine/path: nonzero C20B bypasses that invocation's HP subtraction, and below $78 bit3 selects C200.bit4; REL42 observes one subsequent selector-$26 contact at C20B=$66 reaching that branch, without a live post-branch sample. Do not infer a global invulnerability/status timer or complete semantics for other values/bits. Full hit-to-recovery duration and later HP-acceptance threshold remain unmeasured."
+    },
+    {
+      "address": "C20E",
+      "name": "playerAnimationId",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "ROM0:$0061 generic animation setter targets object +$0E and resets +$0F/+$10 on change",
+        "B2:$6A1F renderer reads object +$0E as index into B2:$4D80 animation pointer table",
+        "save state C20E=$80 reproduces player OAM exactly"
+      ]
+    },
+    {
+      "address": "C20F",
+      "name": "playerAnimationTimer",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B2:$6A1F increments object +$0F before comparing against animation duration",
+        "ROM0:$0061 resets +$0F when animation ID changes"
+      ]
+    },
+    {
+      "address": "C210",
+      "name": "playerAnimationFrameIndex",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B2:$6A1F reads object +$10 to select a frame ID from the animation sequence",
+        "ROM0:$0061 resets +$10 on animation change",
+        "save state C210=$00 selects frame C0 for animation 80 and exactly matches OAM"
+      ]
+    },
+    {
+      "address": "C213",
+      "name": "playerAnimationFlagByte",
+      "kind": "hypothesis",
+      "confidence": "High",
+      "evidence": [
+        "B2:$6A1F copies object +$13 and tests bit6 at sequence completion",
+        "renderer sets bit7 in +$13 on the special completion path"
+      ],
+      "notes": "The renderer consumes/tests these bits on the described paths; their complete semantics, including any one-shot behavior, are not established."
+    },
+    {
+      "address": "C211",
+      "name": "playerScreenY",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "save state value $58 equals playerWorldY-cameraY",
+        "common object records use +$11 as screen Y"
+      ]
+    },
+    {
+      "address": "C212",
+      "name": "playerScreenX",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "save state value $58 equals playerWorldX-cameraX",
+        "B1:$4667/$4694 enforce screen-X bounds $98/$18"
+      ]
+    },
+    {
+      "address": "C21A",
+      "name": "overworldCell",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$70A4 derives it from player world coordinates",
+        "B1:$6F55 uses it as C1xx overworld-grid index",
+        "B1:$709B commits destination cell"
+      ]
+    },
+    {
+      "address": "C261",
+      "name": "joypadHeld",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B0:$0B31 joypad scan stores current state",
+        "movement code reads bit4 Right, bit5 Left, bit6 Up, bit7 Down, bit0 A"
+      ],
+      "verified_references": [
+        {
+          "source": {
+            "bank": "00",
+            "address": "0B5D"
+          },
+          "relationship": "writes",
+          "evidence_class": "Observed",
+          "confidence": "Very High",
+          "evidence_path": "runtime/ghidraboy/joypad_reader_pilot.md"
+        }
+      ]
+    },
+    {
+      "address": "C262",
+      "name": "joypadPressed",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B0:$0B31 computes (old XOR new) AND new",
+        "B1:$4521 jump and B1:$478E shooting use edge bits"
+      ],
+      "verified_references": [
+        {
+          "source": {
+            "bank": "00",
+            "address": "0B59"
+          },
+          "relationship": "writes",
+          "evidence_class": "Observed",
+          "confidence": "Very High",
+          "evidence_path": "runtime/ghidraboy/joypad_reader_pilot.md"
+        }
+      ]
+    },
+    {
+      "address": "C26A",
+      "name": "frameCounter",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "VBlank increments/touches it",
+        "B1:$6FAF mixes it with RNG before encounter gate",
+        "B1:$4F27 uses parity to interleave entity updates"
+      ]
+    },
+    {
+      "address": "C270",
+      "name": "overworldMoveDirection",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B0:$1D61-$1DA0 writes 1 Right,2 Left,3 Up,4 Down",
+        "B0:$1DA7 dispatches those values to one-pixel movement routines"
+      ]
+    },
+    {
+      "address": "C271",
+      "name": "overworldMoveFramesRemaining",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B0:$1D4C initializes $10",
+        "B0:$1DB6 decrements each frame and clears C270 at zero"
+      ]
+    },
+    {
+      "address": "C274",
+      "name": "playerRequestedAnimationId",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "platforming state code writes IDs 1,2,4,6,8 for movement states",
+        "shooting writes odd paired IDs and later restores C275",
+        "overworld writes $80/$81/$82 by direction; downstream object animation machinery mirrors/consumes these state choices"
+      ],
+      "notes": "gameplay-side animation selection field; common rendered-object animation state lives at object +$0E (player C20E)"
+    },
+    {
+      "address": "C275",
+      "name": "shotAnimationIdBackup",
+      "kind": "hypothesis",
+      "confidence": "Medium",
+      "evidence": [
+        "B1:$478E shooting writes animation choice to C274 and C275",
+        "B1:$4880 copies C275 back into C274 during shot cooldown (restore path Inference, High)",
+        "Gearboy trace observed LD (C275),A at B1:$4832 writing the fired anim ID (ground fire C274=C275=3) - Observed, Very High for the write itself"
+      ]
+    },
+    {
+      "address": "C278",
+      "name": "verticalSubpixelAccumulator",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$4703/$473F accumulates $80 fractional velocity and adds an extra pixel on wrap"
+      ]
+    },
+    {
+      "address": "C27B",
+      "name": "playerMovementFlags",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$450D dispatches bit3 wall cling and bit1 airborne",
+        "bit0 marks ground motion; bit2 marks shooting lock/cooldown",
+        "Bit2 blocks the supported/no-fresh-A grounded path at B1:$452B-$452D and cling handling at B1:$4B02; support-loss/fresh-A launch dispatch occurs before the grounded gate, so bit2 does not suppress all jump handling",
+        "REL49 natural Stage 0 class-$02 center contact: bit1 remains set through B1:$42C9 response/correction; following movement update clears C27B at B1:$4757 without changing Y or sampled C27C/C27D/C27E"
+      ]
+    },
+    {
+      "address": "C27C",
+      "name": "airPhase",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$45AB decodes values 0/1/2/4",
+        "Fresh-A entry from phase 1 reaches the flight-budget decrement path on that gameplay update; fresh-A exit from phase 2 calls the fall integrator on that update",
+        "REL48 natural tier-0 trial: F83 ends phase2 at DF12=0 and Y=442; the following zero-start update at F84 reaches phase4 and Y=443; F21-F83 contain 63 budget-consuming completed video frames in this route; controller calls were not independently counted; phase-4 re-entry remains untested"
+      ]
+    },
+    {
+      "address": "C27D",
+      "name": "verticalSpeedInteger",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$4565 loads jump integer speed",
+        "B1:$46E2 reduces it during ascent; B1:$471D increases/clamps it during descent"
+      ]
+    },
+    {
+      "address": "C27E",
+      "name": "verticalSpeedHalf",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "values $00/$80 act as 0/0.5-pixel fraction in B1:$46FE/$473A"
+      ]
+    },
+    {
+      "address": "C27F",
+      "name": "verticalAccelerationPhase",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$46E2 adds $40 each ascent frame",
+        "B1:$471D adds $10 each descent frame"
+      ]
+    },
+    {
+      "address": "C280",
+      "name": "horizontalMovementAccumulator",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "B1:$465D/$468A adds movement fraction and moves one pixel on carry",
+        "B1:$46CC subtracts $40 when neither horizontal button is held"
+      ],
+      "notes": "At rest C280 reads static $00 with X frozen and no slide/deceleration observed (Observed, High); walking right shows a C0/80/40/00 per-frame sawtooth (Observed, High). The $46CC attribution and exact fraction semantics stay Inference, Medium."
+    },
+    {
+      "address": "C28E",
+      "name": "shotCooldown",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "setup LD A,$10 at B1:$47B6 on firing; exact store LD (C28E),A at B1:$47B8 (write-bp post-PC $47BB, A=$10, HL=$C300)",
+        "B1:$4867 decrements until playerMovementFlags bit2 clears"
+      ]
+    },
+    {
+      "address": "C29E",
+      "name": "projectileSlotLimit",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "B0:$06C2 loads from weapon table",
+        "B1:$4799 limits search through projectile pages C300+ for a free slot",
+        "REL44: with C29E=$01 and active C300 byte $21, one fresh post-cooldown edge skips free-slot setup and reaches B1:$47A5->$4867"
+      ],
+      "notes": "REL44 directly samples one configured one-record scan. The occupied record explains that trial's rejection; other configured counts and an inactive-record acceptance counterfactual remain untested."
+    },
+    {
+      "address": "C29F",
+      "name": "projectileBaseFlags",
+      "kind": "hypothesis",
+      "confidence": "Medium",
+      "evidence": [
+        "B0:$06C6 loads companion weapon-table byte",
+        "B1:$4835 ORs it with direction/type bits when creating projectile"
+      ]
+    },
+    {
+      "address": "C2A2",
+      "name": "wallJumpForcedDirection",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "B1:$4B2B/$4B4A writes selector 2/1",
+        "B1:$4B62 maps it to held-input masks $11/$21"
+      ]
+    },
+    {
+      "address": "C2A3",
+      "name": "wallJumpForcedInputFrames",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$4B26/$4B45 initializes 8",
+        "B1:$4B72 decrements once per update while replacing joypadHeld"
+      ]
+    },
+    {
+      "address": "C362",
+      "name": "cameraWorldYLo",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "VBlank mirrors it to SCY",
+        "B1:$4C03/$4C42 scroll relative to player Y",
+        "save state yields player-screen delta"
+      ]
+    },
+    {
+      "address": "C363",
+      "name": "cameraWorldYHi",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "carry partner of C362",
+        "save state camera Y=$11D0"
+      ]
+    },
+    {
+      "address": "C364",
+      "name": "cameraWorldXLo",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "VBlank mirrors it to SCX",
+        "B1:$4B95/$4BD0 scroll relative to player X",
+        "save state camera X=$1078"
+      ]
+    },
+    {
+      "address": "C365",
+      "name": "cameraWorldXHi",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "carry partner of C364",
+        "save state camera X=$1078"
+      ]
+    },
+    {
+      "address": "C369",
+      "name": "playerPreviousWorldYLow",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "Observed — Very High: ROM0:$1448-$1451 saves Y/X low bytes to C369/C368; B1:$4014 loads C369 for side offset computation",
+        "Observed — High: saved-Y discriminator fixture and natural middle latch use saved Y rather than current Y"
+      ],
+      "notes": "Inference — High: preceding settled update Y in the tested stage loop, not a universal timing claim for every caller. See runtime/gearboy/REL0-49/REL00-09/collision_and_geometry.md §§2-4."
+    },
+    {
+      "address": "C36A",
+      "name": "playerCollisionFlags",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Observed — Very High: B1:$4000-$4006 preserves old bits6/7 and clears lower bits; $411F-$4124 clears bits6/7 only for fresh side sampling",
+        "demonstrated ground contact sets bit0; wall-latch paths set bit6",
+        "Observed — Very High: upper OR/store $4173/$4175 and middle OR/store $41D9/$41DB set bit6",
+        "bit4 feeds damage routine $6E04"
+      ],
+      "notes": "Observed — High: lower-only ordinary solid contact blocks without cling; ordinary sustained cling retains prior bit6 without fresh side/support probes. Support sets bit0 and corrects Y, while airborne state can persist to the next movement update."
+    },
+    {
+      "address": "C36B",
+      "name": "playerCollisionAuxFlags",
+      "kind": "hypothesis",
+      "confidence": "High",
+      "evidence": [
+        "B1:$4159 bit7 can suppress wall latch",
+        "B1:$448A writes tile-dependent auxiliary values",
+        "Observed — Very High: $448A XOR A / $448B store clears this before the special-class rebuild; no-direction side selection sets bit7 at $4052"
+      ],
+      "notes": "exact meaning of all bits incomplete"
+    },
+    {
+      "address": "C36C",
+      "name": "playerCollisionClassScratch",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "Observed — Very High: B1:$4276 reads ground / $4277 stores C36C; B1:$41E1 reads side / $41E2 stores C36C before class compares",
+        "REL49 Observed — Very High: B1:$41E6 stores the final center probe from C375 at (X-9,Y-5) through C36C before B1:$42C9 dispatches class $02; later probes can overwrite this scratch"
+      ],
+      "notes": "The class-$02 center consumer and one Stage 0 rooftop acceptance are documented in runtime/gearboy/REL0-49/rel49/findings.md and canon/analysis/maps_collision.md; other uses and game-wide class meaning remain uncharacterized."
+    },
+    {
+      "address": "C38B",
+      "name": "transitionGraphicsScratch",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "Seven bytes C38B-C391 receive $10CD-selected data and feed the demonstrated BG-map reader at ROM0:$0E24"
+      ],
+      "notes": "Transition-scoped shared scratch; no permanently dedicated buffer is implied."
+    },
+    {
+      "address": "C39A",
+      "name": "mapLookupFamilyIndex",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "ROM0:$10A4, $10CD, and $10ED use this as a doubled index into related table families",
+        "Sampled values $09 and $00 do not establish stage-level selector meaning"
+      ]
+    },
+    {
+      "address": "C3A4",
+      "name": "cameraWorldXLimitHigh",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "copied from the per-scene data block by the loader at ROM0:$0D40-$0D41",
+        "the camera follow's rightward clamp B1:$4BBB-$4BC3 compares the camera X high byte against it and pins the camera X low to $60; the leftward clamp B1:$4BED-$4BF9 pins the camera X low to $00 and decrements the high byte",
+        "while $DF06 bit 1 is clear the camera's reachable X range is [0, ($C3A4 << 8) + 96]; setting bit 1 changes the clamp rather than relaxing it",
+        "scene 4's value grows from $06 to $07 between the $DF06 bit-0-clear and bit-0-set data blocks"
+      ],
+      "notes": "The camera's own X high-byte limit for the scene, not a generic area extent. For scene 0 it is $07, i.e. camera X <= 1888 while the boss latch is clear."
+    },
+    {
+      "address": "C3A5",
+      "name": "cameraWorldYLimitHigh",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "copied from the per-scene data block by the loader at ROM0:$0D44-$0D45",
+        "the camera follow's downward clamp B1:$4C2D-$4C35 compares the camera Y high byte against it and pins the camera Y low to $80; the upward clamp B1:$4C60-$4C6D pins the camera Y low to $00 and decrements the high byte",
+        "while $DF06 bit 1 is clear the camera's reachable Y range is [0, ($C3A5 << 8) + 128]"
+      ],
+      "notes": "The camera's own Y high-byte limit for the scene. For scene 0 it is $01, i.e. camera Y <= 384 while the boss latch is clear."
+    },
+    {
+      "address": "C3B3",
+      "name": "mapPartSelector",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Full byte offsets the $10CD graphics lookup",
+        "Bit1 selects classifier byte and bit0 selects classifier nibble at $10ED"
+      ],
+      "notes": "Spatial meaning is unresolved; no literal quadrant interpretation is assigned."
+    },
+    {
+      "address": "C3B4",
+      "name": "mapClassResult",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "$10ED writes the selected packed nibble here; demonstrated builders store it into C1xx"
+      ],
+      "notes": "$01/$00 behavior is scoped to demonstrated consumers; $08 semantics remain unresolved."
+    },
+    {
+      "address": "C3B5",
+      "name": "mapLookupSubindex",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "$1086 fetches this byte from a first-level table (via inner point $1090); $10A4 doubles it for the next lookup level"
+      ]
+    },
+    {
+      "address": "C3B6",
+      "name": "mapDataEntryId",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "$10A4 writes the resolved byte here; $10CD and $10ED consume it as an input offset"
+      ],
+      "notes": "Analyst description, not an original symbol."
+    },
+    {
+      "address": "C3B7",
+      "name": "mapLookupPointerHiScratch",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "$1086 stages the high byte of its intermediate pointer here (inner point $1090)"
+      ],
+      "notes": "Transition lookup scratch."
+    },
+    {
+      "address": "C3B8",
+      "name": "mapFamilyPointerHiScratch",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "$10A4 stages the high byte of its $3C98-family pointer here"
+      ]
+    },
+    {
+      "address": "C3B9",
+      "name": "mapGraphicsPointerHiScratch",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "$10CD stages the high byte of its $3CB0-family pointer here"
+      ]
+    },
+    {
+      "address": "C3BA",
+      "name": "mapClassPointerHiScratch",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "$10ED stages the high byte of its $3CC8-family pointer here"
+      ]
+    },
+    {
+      "address": "C3BB",
+      "name": "mapLookupPointerLoScratch",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "$1086 preserves the low pointer byte here (inner point $1090) while fetching the paired high byte"
+      ],
+      "notes": "Transition lookup scratch."
+    },
+    {
+      "address": "C3BC",
+      "name": "mapFamilyPointerLoScratch",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "$10A4 stages the low byte of its $3C98-family pointer here"
+      ]
+    },
+    {
+      "address": "C3BD",
+      "name": "mapGraphicsPointerLoScratch",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "$10CD stages the low byte of its $3CB0-family pointer here"
+      ]
+    },
+    {
+      "address": "C3BE",
+      "name": "mapClassPointerLoScratch",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "$10ED stages the low byte of its $3CC8-family pointer here"
+      ]
+    },
+    {
+      "address": "C3C5",
+      "name": "romBankShadow",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "fixed-bank bank-switch routines write both C3C5 and MBC1 $3000",
+        "save-state C3C5 matches mapped bank 1",
+        "A preserved natural runtime sample records C3C5 differing transiently from the physically mapped bank; this is a shadow, not an always-current physical-bank readout"
+      ]
+    },
+    {
+      "address": "C669",
+      "name": "bgPaletteMirror",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Observed (Very High): ROM0:$0AEE executes LD A,($C669) followed by LDH ($FF47),A (BGP); the Double Speed Color patch reads this byte as DMG palette state",
+        "Inference (Very High): software mirror of the BGP palette register"
+      ]
+    },
+    {
+      "address": "C66A",
+      "name": "objPalette0Mirror",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Observed (Very High): ROM0:$0AF3 executes LD A,($C66A) followed by LDH ($FF48),A (OBP0); the Double Speed Color patch reads this byte as DMG palette state",
+        "Inference (Very High): software mirror of the OBP0 palette register"
+      ]
+    },
+    {
+      "address": "C66B",
+      "name": "objPalette1Mirror",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Observed (Very High): ROM0:$0AF8 executes LD A,($C66B) followed by LDH ($FF49),A (OBP1); the Double Speed Color patch reads this byte as DMG palette state",
+        "Inference (Very High): software mirror of the OBP1 palette register"
+      ]
+    },
+    {
+      "address": "C463",
+      "name": "dialogueTextState",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Observed — Very High (ROM bytes): ROM0:$309F-$30A1 writes $04 to $C463 when the text stream reaches its end-of-message code $7F, after the A/B acknowledgement loop at $3093",
+        "Observed — Very High (ROM bytes): ROM0:$3159-$315B writes $04 to $C463 from the text-stream control code $75",
+        "Observed — Very High (ROM bytes): ROM0:$1560 writes $C463 from the script-interpreter state machine that selects the next script record"
+      ],
+      "notes": "Inference — Very High: dialogue/text state byte shared by the text renderer and the script interpreter. Its full value range is not established; the end-of-message value $04 is Observed."
+    },
+    {
+      "address": "C460",
+      "name": "overworldMenuState",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "B0:$1D3B returns before overworld movement whenever C460 != 0",
+        "save state with menu visibly open has C460=$80",
+        "Observed - High (REL6 natural input): A menu holds80;81 draws BG rows and02 restores them; C464 is the independent choice"
+      ],
+      "notes": "Inference - High: menu/UI busy-transfer bitfield. C463 dispatches phases and C464 selects commands; stable menu blocks new movement/encounter checks. See runtime/gearboy/REL0-49/REL00-09/menus_and_passwords.md."
+    },
+    {
+      "address": "C4AC",
+      "name": "fieldC4AC",
+      "kind": "hypothesis",
+      "confidence": "Medium",
+      "evidence": [
+        "B1:$4560 sets to 1 when airborne starts (launch write LD (C4AC),A at B1:$4562 observed on every jump - Observed, Very High for the write itself)",
+        "B1:$44F9 clears it on a collision path that also emits audio command $35; a sound-latch or APU relationship is not established"
+      ]
+    },
+    {
+      "address": "C579",
+      "name": "fieldC579",
+      "kind": "hypothesis",
+      "confidence": "High",
+      "evidence": [
+        "B1:$6F55 clears it",
+        "Existing source/runtime evidence records set paths for a tested $01 blocked destination, an occupied-cell path, and the specific return path below",
+        "B0:$1D46 aborts movement when bit0 set",
+        "Observed - Very High (one return path): in the password-derived DF03=$13 state at C21A=$F8, B1:$6F55 reads C1F8=$05, requests DF07=$88, then writes C579=$01 at B1:$7005; this is path-scoped, not a global $05/C579 meaning"
+      ]
+    },
+    {
+      "address": "C57A",
+      "name": "dialogueVoiceCommand",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Observed - Very High (ROM bytes): ROM0:$305D-$305F is the only writer of $C57A in the image; LD A,(DE) with DE still pointing at the script record reads that record's voice operand, INC DE steps past it to the text, and LD ($C57A),A stores it",
+        "Observed - Very High (whole-image scan): $C57A has exactly one writer (ROM0:$305F) and exactly two readers (ROM0:$31F0, $3222), both the per-glyph audio-command paths",
+        "Observed - Very High (runtime): every glyph of one message dispatches the same command id; the value is a property of the message, not of the glyph",
+        "Observed - Very High (ROM bytes): the voice operand is unconditional - every message handler calls $3044 first and CALL $3044 appears at exactly nine sites",
+        "Observed - Very High (runtime): 607 dispatches logged over 4000 frames of the opening dialogue were $29 (126) and $2A (481); $2B did not occur on that route"
+      ],
+      "notes": "Inference - Very High: message-level dialogue voice selector holding a sound-command id ($29, $2A, $2B). Not a per-glyph source byte - see the REL52 correction in canon/analysis/audio.md."
+    },
+    {
+      "address": "C562",
+      "name": "dialogueColumnCounter",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Observed — Very High (ROM bytes): ROM0:$3072-$3074 initialises $C562 to $41 when a message's text stream is set up",
+        "Observed — Very High (ROM bytes): both glyph paths increment $C562 once per drawn character (ROM0:$31F4-$31F8 literal, ROM0:$3226-$322A word)",
+        "Observed — Very High (ROM bytes): the text-stream row-break code $7D (handler ROM0:$30B5) writes $81 to $C562, moving the text to the next row"
+      ],
+      "notes": "Inference — Very High: running column/cell counter for the dialogue text panel. The exact cell-to-screen mapping is not established here; REL12's opening-room contract holds the panel geometry."
+    },
+    {
+      "address": "C565",
+      "name": "dialogueGlyphTileCode",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Observed — Very High (ROM bytes): both glyph paths write the character's tile code to $C565 before drawing it (ROM0:$31E3-$31E5 literal, ROM0:$3215-$3217 word)",
+        "Observed — Very High (ROM bytes): the tile code is the ASCII character plus $A0, so 'A' is $E1 and a space is $C0"
+      ],
+      "notes": "Inference — Very High: tile code of the glyph currently being drawn in the dialogue panel. Matches the captured opening-room text rows."
+    },
+    {
+      "address": "C668",
+      "name": "contactClass08LaunchLatch",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "The demonstrated class-$08 contact branch writes 8 here",
+        "Jump launch consumes a nonzero value and forces C27D=2 at B1:$456B-$4573",
+        "Observed - High (REL6): natural class08 sinking-strip interior4479 writes8, then fresh A escapes without a scene change"
+      ],
+      "notes": "Inference - High: sinking environment in the tested strip, not an established exit. Depicted material/global class semantics and other contexts remain unresolved; analyst name unchanged."
+    },
+    {
+      "address": "DD00",
+      "name": "overworldReturnFrameStack",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Observed - Very High (static ROM audit): 25-byte ($19) return frames; slots 0-3 use $40 stride from DD00, while the 8-bit SWAP(ROL2(index)) calculator wraps at index 4; B1:$71A7 pushes and the loader restores frames",
+        "Observed - Very High (static ROM audit): frame byte +$18 stores DF03; B1:$7163 peeks the top frame's +$18 byte before the loader completes the pop",
+        "Observed - Very High (runtime, tested password-derived path): DF08=$02 selects DD58 and DD58=$01 is restored to DF03"
+      ],
+      "notes": "Neutral analyst-assigned base label. Individual frame-byte semantics remain incomplete; see runtime/gearboy/REL0-49/REL00-09/overworld_decoder_campaigns.md."
+    },
+    {
+      "address": "DEA1",
+      "name": "soundPriority",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Observed - Very High (ROM bytes): B3:$4140-$4144 loads it and compares the requested command's priority against it (CP (HL) / RET C), so a lower-priority request is rejected",
+        "Observed - Very High (ROM bytes): B3:$4145 stores the accepted priority (the sequence's first byte AND $7F) into it",
+        "Observed - Very High (runtime): all three dialogue voices request priority $0A; 16/16 gate hits at equal priority had the carry flag clear, so equal-priority re-requests are accepted and reset the sequence body pointer (a restart, not a continuation)"
+      ],
+      "notes": "Inference - Very High: current sound priority used by the B3 sound-command dispatcher to arbitrate between playing sounds. Scope is the dispatcher path; no global priority ordering across all command ids is established."
+    },
+    {
+      "address": "DEA7",
+      "name": "soundStepDuration",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Observed - Very High (ROM bytes): B3:$42C5 loads it, tests it with OR A / JR Z, and otherwise decrements it and stores it back, so it is a down-counter of ticks for the current sound-sequence step; at zero the next step is decoded",
+        "Observed - Very High (ROM bytes): B3:$4334 stores the sequence step's duration byte into it, and B3:$4337-$4341 derives $DEAA from it",
+        "Observed - Very High (runtime): the first step of all three dialogue voices sets $DEA7 = $04"
+      ],
+      "notes": "Inference - Very High: per-step duration down-counter for the sound-sequence player at B3. The unit is the sound tick, not a video frame."
+    },
+    {
+      "address": "DF06",
+      "name": "bossGateFlags",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "bit 0 is set by the boss creation gate's region path at B1:$6F0C (REL102 observed the store with the player at world X 1024-1279 and world Y <= 255), by the stage-script path ROM0:$276B ($07) and by the scene-init path ROM0:$366E ($03)",
+        "bit 0 is preserved by the stage setup ROM0:$0575 ($DF06 AND $01), which the death/retry chain re-runs, and is cleared only by the paths that write $00 - game over (ROM0:$25AE/$25F6), stage exit (ROM0:$2A51/$2B27) and overworld entry (ROM0:$2DE1); no writer clears it while a stage runs",
+        "bit 0 selects the per-scene data block: ROM0:$0CFB-$0D05 tests it and chooses the pointer table B2:$6B2B (clear) or B2:$6B71 (set)",
+        "bit 1 is the boss-sequence latch: B1:$6F0F-$6F14 returns from the gate once it is set, and B1:$6F3A sets it after the camera literal compare (REL87 observed $DF06 $01->$03 across the latch frame)"
+      ],
+      "notes": "Bit 0 is a region-entry latch and a scene-data selector, not an instantaneous player-location flag. Bit 1 is the boss-creation latch; the stage setup clears it and keeps bit 0, so the boss sequence is re-armed after a death and retry."
+    },
+    {
+      "address": "DF08",
+      "name": "overworldReturnFrameDepth",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Observed - Very High (static ROM audit): B1:$71A7 uses old DF08 as push slot and increments; loader pop selects DF08-1 and decrements at ROM0:$0CBD",
+        "Observed - Very High (runtime, tested password-derived path): DF08 changes $02->$01 while the parent frame is restored"
+      ],
+      "notes": "This is a frame count/depth on the audited paths. Practical maximum and out-of-range behavior remain unresolved; four non-overlapping DD-page slots do not prove a gameplay depth limit."
+    },
+    {
+      "address": "DF01",
+      "name": "gameModeFlags",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B0:$026B jumps to overworld initialization when bit0 is set",
+        "overworld save state has $81",
+        "B1:$7142 XORs with $03 when entering a random encounter",
+        "battle handler $2B5B restores $81 on return to overworld",
+        "Observed - High (REL6): natural destination7147 changes1 to2; exhaustion return25B3 writes81",
+        "Observed - High (REL6):24B7 temporarily writes1 in a stage response while C693=1 and player/camera are still in stage coordinates"
+      ],
+      "notes": "bit0 strongly marks overworld mode; bit1 participates in side-scrolling/transition mode. Transient response writes are not alone a settled-scene classifier: require writer/caller, busy state and settled context."
+    },
+    {
+      "address": "DF02",
+      "name": "areaOrBattleSceneId",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "fixed-bank side-scrolling dispatcher indexes by DF02",
+        "B1:$6FE2 writes a random-encounter battle/scene ID into DF02",
+        "IDs $19-$20 route through shared battle handler $2A72",
+        "overworld mode itself is independently controlled by DF01 bit0",
+        "the boss creation gate reads it as the scene index at B1:$6EE1, $6EED and $6F15, with CP $06 / RET NC limiting the gate to scene ids 0-5",
+        "the per-scene setup loader at ROM0:$0CFB-$0D5E indexes its pointer table by it (B2:$6B2B, or B2:$6B71 once $DF06 bit 0 is set) and copies that scene's 16-byte block into $C39A-$C3A5 and the camera/player high bytes"
+      ],
+      "notes": "Do not treat DF02 as the overworld-mode flag; it selects area/battle scene content while DF01 controls mode. For the boss creation gate it is the index of the scene's two per-scene tables (region table B1:$6F3D, camera table B1:$6F49; six two-byte entries each) and of the per-scene data block; scene ids 0-5 are the stages the gate applies to."
+    },
+    {
+      "address": "DF0A",
+      "name": "rngStateLo",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "B0:$0BBF mutates DF0A/DF0B as a 16-bit-ish PRNG state and returns derived A"
+      ]
+    },
+    {
+      "address": "DF0B",
+      "name": "rngStateHi",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "B0:$0BBF mutates it",
+        "B1:$6FD7 uses its high nibble to choose encounter variant"
+      ]
+    },
+    {
+      "address": "DF0E",
+      "name": "jumpUpgradeTier",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B0:$06A6 indexes four launch-speed pairs at $030F"
+      ]
+    },
+    {
+      "address": "DF0F",
+      "name": "jumpLaunchSpeedInteger",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B0:$06B0 loads integer component from $030F table",
+        "B1:$4565 copies to C27D on jump"
+      ]
+    },
+    {
+      "address": "DF10",
+      "name": "jumpLaunchSpeedHalf",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B0:$06B4 loads fractional component",
+        "B1:$4576 copies to C27E"
+      ]
+    },
+    {
+      "address": "DF11",
+      "name": "flightBudgetBase",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B0:$032C indexes $030B table",
+        "ground/wall contact refills DF12 from DF11-1"
+      ]
+    },
+    {
+      "address": "DF12",
+      "name": "flightBudgetRemaining",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$45FE gates active flight",
+        "B1:$4786 decrements it",
+        "B1:$4B55 wall cling refills it"
+      ]
+    },
+    {
+      "address": "DF13",
+      "name": "flightUpgradeTier",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B0:$032C indexes flight table",
+        "B1:$4780 tier 3 bypasses decrement for unlimited flight"
+      ]
+    },
+    {
+      "address": "DF15",
+      "name": "maxHp",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B0:$0326 initializes C20A from DF15",
+        "HUD compares current against maximum"
+      ]
+    },
+    {
+      "address": "DF17",
+      "name": "lives",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "death path decrements it",
+        "password codec allocates 4 bits and validates <10",
+        "Observed - Very High (REL84 source): ROM0:$32A1-$32A5 increments it by one inside the town shop purchase charge branch, so a purchase grants one extra life",
+        "Observed - Very High (REL84 source): the upper bound of 9 is set by ROM0:$3172 and enforced by the interpreter's lives opcode at ROM0:$3167-$3176; the shop refuses to sell at that cap without charging"
+      ]
+    },
+    {
+      "address": "DF18",
+      "name": "vials",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "display converts it to decimal",
+        "rewards add/cap at 99",
+        "password codec stores 7 bits and validates <100",
+        "save state has 19",
+        "Observed - Very High (REL84 source): a whole-image operand scan bounds the writers to ROM0:$01C3 (global reset), ROM0:$3192 (script award, caps at 99), ROM0:$32AC (the town shop purchase charge), B1:$5396-$53A0 (the selector-$08 pickup award), and B2:$4892 (password decode application)",
+        "Observed - Very High (REL84 source): the purchase charge at ROM0:$3285-ROM0:$32AC subtracts 8, 16 or 32 vials by the saved progression tier held in the parent overworld return frame, and increments $DF17 by one; the affordability test at ROM0:$3039-ROM0:$303D skips the charge entirely when the balance is short"
+      ],
+      "external_evidence": [
+        {
+          "source": "RetroAchievements official forum - Ticket #48611 (2022-06-05)",
+          "url": "https://retroachievements.org/forums/topic/7176",
+          "local_source": "references/retroachievements/audit/achievement_logic_raw.txt",
+          "claim": "Achievement 25950, Earn your first Vial!, tests 0xHdf18>=1_0xHdf18!=255.",
+          "kind": "observed",
+          "confidence": "Very High",
+          "classification": "direct corroboration",
+          "checked_on": "2026-10-04",
+          "notes": "Historical condition logic, not an internal runtime trace; exact current achievement definition unavailable."
+        }
+      ],
+      "notes": "Vial-count inference remains Very High. The !=255 achievement guard and cheat-signature value 22 do not establish ROM maxima."
+    },
+    {
+      "address": "DF1A",
+      "name": "passwordField1A",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "Observed runtime decoder evidence (Very High): B2:$489C calls $490A for eight bits and B2:$489F writes the returned value to DF1A (call returns, store follows immediately).",
+        "Observed runtime validation (Very High): B2:$48B6-$48ED validates DF1A using a table-derived mask.",
+        "Observed internal ROM evidence (Very High): B2:$46ED-$46F2 packs eight bits via $47BA.",
+        "Observed internal save-state evidence (Very High): archived overworld snapshot has DF1A=$0D; see archive/legacy_analysis/state_analysis.md."
+      ],
+      "notes": "Inference (High): password-persistent byte with an eight-bit encoded field and table-derived validation. Its gameplay/inventory role and exact bit/item meanings remain unresolved. The external $5D literal is not an item assignment or observed transition.",
+      "external_evidence": [
+        {
+          "source": "RetroAchievements official forum - Ticket #48611 (2022-06-05)",
+          "url": "https://retroachievements.org/forums/topic/7176",
+          "local_source": "references/retroachievements/audit/achievement_logic_raw.txt",
+          "claim": "Full-inventory/famous-password signature checks DF1A previous $00, current $5D (93 decimal), using 8-bit reads.",
+          "kind": "observed",
+          "confidence": "Very High",
+          "classification": "supports conservative persistent-state inference",
+          "checked_on": "2026-10-04",
+          "notes": "Historical condition logic, not an internal runtime trace; exact current achievement definition unavailable."
+        }
+      ]
+    },
+    {
+      "address": "DF1B",
+      "name": "passwordField1B",
+      "kind": "inference",
+      "confidence": "Medium",
+      "evidence": [
+        "Observed runtime decoder evidence (Very High): B2:$4887 calls $490A for three bits and B2:$488A writes the returned value to DF1B (call returns, store follows immediately).",
+        "Observed runtime validation (Very High): B2:$48FC-$4904 accepts decoded DF1B values 1..6.",
+        "Observed internal ROM evidence (Very High): B2:$46FD-$4702 packs three bits via $47BA.",
+        "Observed internal save-state evidence (Very High): archived overworld snapshot has DF1B=$01; see archive/legacy_analysis/state_analysis.md."
+      ],
+      "notes": "Inference (Medium): password-persistent byte with a three-bit decoded field validated to 1..6. Its gameplay/progression role and behavior outside the password path remain unresolved; upper runtime bits are not established as globally unused.",
+      "external_evidence": [
+        {
+          "source": "RetroAchievements official forum - Ticket #48611 (2022-06-05)",
+          "url": "https://retroachievements.org/forums/topic/7176",
+          "local_source": "references/retroachievements/audit/achievement_logic_raw.txt",
+          "claim": "Full-inventory/famous-password signature checks DF1B previous $00 and current $01 in linked PauseIf condition; $00 -> $01 is a signature component, not a standalone award trigger.",
+          "kind": "observed",
+          "confidence": "Very High",
+          "classification": "supports conservative persistent-state inference",
+          "checked_on": "2026-10-04",
+          "notes": "Historical condition logic, not an internal runtime trace; exact current achievement definition unavailable."
+        }
+      ]
+    },
+    {
+      "address": "DF36",
+      "name": "encounterStepCounter",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$6FA0 checks >=8 and resets",
+        "B1:$709F increments only after accepted overworld destination"
+      ]
+    },
+    {
+      "address": "DF38",
+      "name": "weaponId",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "B0:$06B8 indexes projectile configuration table",
+        "B1:$47A8 chooses shot audio and stores value in projectile +9"
+      ]
+    },
+    {
+      "address": "C70A",
+      "name": "bossDamageCounter",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "Observed — Very High (REL82 source): B1:$76AF subtracts a damage amount from record +$0A and B1:$76B0 writes the eight-bit result back; B1:$76B1 is JR NC so a borrow diverts to the defeat transition at $76B3",
+        "Observed — Very High (REL82 source): the subtracted amount is the B1:$7D72 table byte selected by $DF38 via ROM0:$0071, so the decrement is weapon-dependent",
+        "Observed — Very High (REL82 source): the scripted selector-$4F initialisation at B1:$73AE-$73B6 sets the initial value to $10",
+        "Observed — Very High (retained REL60 artifact): the sampled terminal shot changes $C70A $00->$FF while $C70C changes $02->$04"
+      ],
+      "notes": "Scoped to the Stage 0 selector-$4F boss record at $C700. The same byte offset carries a one-hit remaining counter for the selector-$03 actor (canon/analysis/entities.md REL59b), so this label does not generalize to every actor record. Inference — High, scoped to $DF38=$00: sixteen one-unit hits reach $00 and the seventeenth underflows to $FF and triggers the defeat transition; other $DF38 values give different thresholds."
+    },
+    {
+      "address": "C70B",
+      "name": "bossContactDamageAmount",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "Observed — Very High (REL82 source): B1:$73B7-B1:$73BA set this byte to $01 during the scripted selector-$4F initialisation",
+        "Observed — Very High (REL82 source): the boss-specific spawn helper B1:$76EC sets this byte to $01 on spawned selector-$0D records at B1:$7714-B1:$7716",
+        "Observed — Very High (REL82 source): the shared contact helper B1:$7B75-B1:$7B87 copies this byte to $C663 and sets $C36A.bit4 when it is non-zero",
+        "Observed — Very High (REL82 source): the shared player-damage updater B1:$6E04-B1:$6E23 subtracts $C663 from player HP $C20A at B1:$6E22-B1:$6E23"
+      ],
+      "notes": "Scoped to the Stage 0 selector-$4F boss and the selector-$0D records it spawns. Because the value is $01, a selector-$0D contact requests exactly one player HP unit and removes the actor. The same record offset is a selector byte for other actor families, so this label does not generalize."
+    },
+    {
+      "address": "C70C",
+      "name": "bossRawState",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "Observed — Very High (REL78 runtime): the F213 and F277 state writes execute in B1:$736A at B1:$73F2 and B1:$741C, writing this byte",
+        "Observed — Very High (REL82 source): B1:$736A dispatches this byte to the raw states $10/$11/$12/$13 at B1:$73D0/$73E2/$73F4/$741E and to $01-$07 at B1:$7430/$74A4/$74E7/$754D/$7536/$75A2/$75D4",
+        "Observed — Very High (REL82 source): B1:$6C3F dispatches the same byte to $01-$05 and reaches B1:$754D for raw $04",
+        "Observed — Very High (retained REL60 artifact): the sampled terminal shot changes this byte $02->$04"
+      ],
+      "notes": "Scoped to the Stage 0 selector-$4F boss record at $C700. It is a raw state/dispatch byte, not a named game concept; the same record offset carries a different dispatch meaning for other selector families, so this label does not generalize. Do not assign attack semantics to any raw value."
+    },
+    {
+      "address": "CA20",
+      "name": "sourcePlacementStatusBase",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Observed — Very High (REL83 source): ROM0:$1E8E writes each placement template's initial flag byte to $CA20+index",
+        "Observed — Very High (REL83 source): B1:$4D78 sets bit 0 of $CA20+index when a source placement is materialised into a live actor record",
+        "Observed — Very High (REL83 source): B1:$4E85 and B1:$4EE1 clear bit 0 of $CA20+index when an active actor is evicted by viewport cleanup",
+        "Observed — Very High (REL83 source): B1:$7BFD clears bit 0 of $CA20+index in the shared defeat/removal helper, reached from B1:$5B37",
+        "Observed — Very High (REL83 source): B1:$4D36 and B1:$4DF0 skip any placement whose $CA20+index bit 0 is set",
+        "Observed — Very High (REL83 source): the selector-$08 collection path B1:$53A4 clears only the live actor's active byte and leaves $CA20+index unchanged",
+        "Observed — Very High (REL83 source): ROM0:$01E1-ROM0:$020C wipes $C000-$D9FF, which includes the $CA20-$CA54 placement-status array",
+        "Observed — Very High (REL83 source): a whole-image operand scan bounds the writers of the $CA20 page to the initialisation, spawn, eviction, defeat/removal, and overworld room-list terminator paths"
+      ],
+      "notes": "Inference — Very High: a per-placement materialisation flag, not an actor record. Stage 0 has 53 source placements, so the array spans $CA20-$CA54 with a $FF terminator. The Stage 0 death/retry path re-runs the stage setup (ROM0:$2568 -> $0570 -> $01E1 -> $024D -> $035A -> $1DEF -> $1E6B), which resets this array and therefore restores previously collected pickups; no writer of $DF18 lies on that chain, so the vial total persists. Scope is the source-placement mechanism; other $CAxx arrays in the same page carry unrelated meanings."
+    },
+    {
+      "address": "C300",
+      "name": "playerProjectileSlotBase",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$4796-$47A3 scans from $C300; B1:$48B5 dispatches the attack records; a natural active projectile at $C300 was observed. Do not imply the entire C300-C600 range is populated.",
+        "Source: canon/analysis/platforming.md",
+        "Corroboration/context: canon/analysis/external_evidence.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C360",
+      "name": "windowYPositionMirror",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "ROM0 VBlank mirrors $C360 to WY ($FF4A); the fish-boss terminal handler writes $90 to this byte. The visible meaning of every boss-time write is not established.",
+        "Source: runtime/gearboy/rel118c/findings.md",
+        "Corroboration/context: canon/analysis/rendering.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C663",
+      "name": "pendingContactDamage",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$7B75-$7B87 copies the contacting actor +$0B here; the shared B1:$6E10-$6E23 gate uses it for HP subtraction. Also used by damaging terrain class $07.",
+        "Source: runtime/gearboy/rel118a/findings.md",
+        "Corroboration/context: canon/analysis/platforming.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C690",
+      "name": "vblankMapTransferGateFlags",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "ROM0:$0A4B-$0A75 checks bit 0 before processing the CA61/CA66 queued-map operation. Other bits and producers are not fully identified.",
+        "Source: runtime/gearboy/rel118c/findings.md",
+        "Corroboration/context: canon/analysis/entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C700",
+      "name": "worldActorSlot0Base",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B1:$4F23 parity-split world-entity dispatcher walks page-sized records starting at $C700/$C800; selector $4F boss lives at $C700 for Stage 0. Not all game actors are in this page family.",
+        "Source: canon/analysis/external_evidence.md",
+        "Corroboration/context: runtime/gearboy/rel118a/findings.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C708",
+      "name": "bossRecordPhaseCounter",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "In Stage 0 selector-$4F record +$08, state $04 increments to $80; state $06 seeds $07 for seven $07 ticks. Meaning is phase dependent, not a universal timer.",
+        "Source: runtime/gearboy/rel118c/findings.md",
+        "Corroboration/context: canon/contracts/stage0_entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C79D",
+      "name": "vramTilePagePendingFlag",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "ROM0:$0AB7 clears the pending page flag after the copy loop finishes; staging code sets it to $01. Confirmed by REL80 write breakpoint.",
+        "Source: canon/analysis/entities.md",
+        "Corroboration/context: runtime/gearboy/rel80/findings.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C7AF",
+      "name": "queuedDataSelectionId",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "ROM0:$1F64 stores the changed selection; $1F72 indexes its linked record chain; $1F60 clears it to zero. Stage-entry $00 and $00/$09 proximity change were confirmed. Shared latch, not a per-actor field.",
+        "Source: runtime/gearboy/rel110/findings.md",
+        "Corroboration/context: canon/analysis/entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C7B0",
+      "name": "tileBlockChainState",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "ROM0:$1F72 staging restores $02; changed-value path $1F6E clears it, and $1FA5 changes stage phase. Only this upload chain is established.",
+        "Source: runtime/gearboy/rel110/findings.md",
+        "Corroboration/context: runtime/gearboy/rel80/findings.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C7B1",
+      "name": "tileBlockSourceBank",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "ROM0:$1FB4 copies record byte 0 here; ROM0:$1FF0-$1FF3 writes it to MBC bank register. REL110 resolves earlier ambiguous header interpretation.",
+        "Source: runtime/gearboy/rel110/findings.md",
+        "Corroboration/context: canon/analysis/entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C7B2",
+      "name": "tileBlockRemainingTiles",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "ROM0:$1FB8 loads total tile count; upload progress decrements it at $1FFE/$200C.",
+        "Source: runtime/gearboy/rel110/findings.md",
+        "Corroboration/context: canon/analysis/entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C7B3",
+      "name": "tileBlockStepByteCount",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Set to $20 for two 2bpp tiles per upload step, $10 for final single tile; counted during VRAM copy.",
+        "Source: runtime/gearboy/rel110/findings.md",
+        "Corroboration/context: runtime/gearboy/rel80/findings.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C7B4",
+      "name": "tileBlockSourceLo",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "Low half of banked source pointer loaded by ROM0:$1FBC, advanced by staged tile bytes at $2019-$201E.",
+        "Source: runtime/gearboy/rel110/findings.md",
+        "Corroboration/context: canon/analysis/entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C7B5",
+      "name": "tileBlockSourceHi",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "High half of banked source pointer loaded by ROM0:$1FC0, advanced by staged tile bytes at $2019-$201E.",
+        "Source: runtime/gearboy/rel110/findings.md",
+        "Corroboration/context: canon/analysis/entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C7B6",
+      "name": "tileBlockDestLo",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Low half of VRAM destination staged at ROM0:$1FC4, advanced per step by $C7B3 at $1FD5-$1FE7.",
+        "Source: runtime/gearboy/rel110/findings.md",
+        "Corroboration/context: canon/analysis/entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C7B7",
+      "name": "tileBlockDestHi",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "High half of VRAM destination staged at ROM0:$1FC8, advanced per step by $C7B3 at $1FD5-$1FE7.",
+        "Source: runtime/gearboy/rel110/findings.md",
+        "Corroboration/context: canon/analysis/entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C7B8",
+      "name": "tileBlockChainLinkLo",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Low half of pointer to current record +6, stored at ROM0:$1FCC; points to next-chain bank byte or a zero terminator.",
+        "Source: runtime/gearboy/rel110/findings.md",
+        "Corroboration/context: canon/analysis/entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C7B9",
+      "name": "tileBlockChainLinkHi",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "High half of pointer to current record +6, stored at ROM0:$1FD0; points to next-chain bank byte or a zero terminator.",
+        "Source: runtime/gearboy/rel110/findings.md",
+        "Corroboration/context: canon/analysis/entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C7CC",
+      "name": "bossPresentationSavedCameraXLo",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Boss terminal setup copies $C364 camera X low here at B1:$758F-$75A0; state $07 restores $C364 from it when the long counter ends. Stage 0 boss scope.",
+        "Source: runtime/gearboy/rel118c/findings.md",
+        "Corroboration/context: canon/analysis/entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C7CE",
+      "name": "bossPresentationTicksRemaining",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "The terminal path initialises $80; state $07 decrements it once per controller update for 128 updates before the map/presentation tail. Stage 0 boss scope.",
+        "Source: runtime/gearboy/rel118c/findings.md",
+        "Corroboration/context: runtime/gearboy/rel118d/findings.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "CA61",
+      "name": "vblankMapTransferRequest",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Boss state $07 writes $01 seven updates; ROM0:$0A4B-$0A75 sees a nonzero request, clears it and consumes the CA66-based queue when C690 bit0 permits.",
+        "Source: runtime/gearboy/rel118c/findings.md",
+        "Corroboration/context: canon/analysis/entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "CA66",
+      "name": "vblankMapQueueDestinationLo",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Queue producer writes destination low byte here; ROM0:$0A4B-$0A75 reads and later writes back advanced destination pointer after consuming payload to $FF.",
+        "Source: runtime/gearboy/rel118c/findings.md",
+        "Corroboration/context: canon/analysis/entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "CA67",
+      "name": "vblankMapQueueDestinationHi",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Queue producer writes destination high byte here; ROM0:$0A4B-$0A75 reads and later writes back advanced destination pointer after consuming payload to $FF.",
+        "Source: runtime/gearboy/rel118c/findings.md",
+        "Corroboration/context: canon/analysis/entities.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "DEA2",
+      "name": "soundSequenceBodyPointerLo",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B3:$415F stores low byte of accepted sound sequence body pointer; tick reader advances the pointer. Equal-priority glyph command resets to beginning.",
+        "Source: canon/analysis/audio.md",
+        "Corroboration/context: runtime/gearboy/rel112/findings.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "DEA3",
+      "name": "soundSequenceBodyPointerHi",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "B3:$4163 stores high byte of accepted sound sequence body pointer; tick reader advances the pointer.",
+        "Source: canon/analysis/audio.md",
+        "Corroboration/context: runtime/gearboy/rel112/findings.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "DF16",
+      "name": "startMenuOrdinaryMaxIndex",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Inclusive maximum ordinary Start-menu index 0..DF16 and associated ordinary window-map block selector. Special conditional index 4 is separately gated by DF19.bit7.",
+        "Source: canon/contracts/start_menu.md",
+        "Corroboration/context: canon/analysis/overworld.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "DF19",
+      "name": "startMenuOptionalFlags",
+      "kind": "inference",
+      "confidence": "Very High",
+      "evidence": [
+        "Bit 0 gates optional artwork; bit 7 independently unlocks special index-4 recovery action and is consumed by it. Unknown other bits and item identity are not assigned.",
+        "Source: canon/contracts/start_menu.md",
+        "Corroboration/context: canon/analysis/overworld.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. Preserve stated subsystem and scope limitations."
+    },
+    {
+      "address": "C770",
+      "name": "queuedTileBlockBuffer",
+      "kind": "inference",
+      "confidence": "High",
+      "evidence": [
+        "REL80 confirms this buffer holds staged tile data before the VBlank uploader copies it to the selected VRAM address; the full extent is not established.",
+        "Source: canon/analysis/entities.md",
+        "Corroboration/context: runtime/gearboy/rel80/findings.md"
+      ],
+      "notes": "Analyst-assigned navigation label; ROM has no original source symbol names. This address lies within the $C700-$C7FF world-actor page range, but uploader use here does not imply exclusive ownership of the page by either system. Preserve stated subsystem and scope limitations."
+    }
+  ]
+}

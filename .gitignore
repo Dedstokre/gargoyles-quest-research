@@ -1,0 +1,30 @@
+# Default deny: only individually reviewed publication paths may be added.
+# A forced add or manual upload bypasses this guard; review content too.
+*
+!/.gitignore
+!/README.md
+!/NOTICE.md
+!/PUBLICATION_MANIFEST.json
+!/docs/
+!/docs/research.md
+!/docs/publication.md
+!/docs/publication-review.md
+!/rom/
+!/rom/README.md
+!/canon/
+!/canon/symbols/
+!/canon/symbols/symbols.json
+!/canon/symbols/gearboy_symbols.sym
+!/models/
+!/models/animation_model.js
+!/models/camera_contract.js
+!/models/overworld_model.js
+!/models/platforming_model.js
+!/models/player_collision_model.js
+!/tests/
+!/tests/model_regressions.mjs
+!/tools/
+!/tools/decode_overworld_cache.py
+!/tools/gb_tile_decode.py
+!/tools/gq_survey.py
+!/tools/verify_project_inputs.py

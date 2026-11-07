@@ -1,0 +1,129 @@
+{
+  "format_version": 1,
+  "purpose": "Explicit reviewed payload inventory; no source Git objects or native game data included.",
+  "source_revision": "2debf7cbdd50414141f0b4505e1b371bc9f62b46",
+  "scope": "Selected public reference snapshot; not a replacement for private canon.",
+  "licensing": "Undecided; see NOTICE.md.",
+  "hash_policy": "SHA-256 over file bytes; this manifest is excluded from its own inventory.",
+  "files": [
+    {
+      "path": ".gitignore",
+      "sha256": "8658987ac5076049a9fa771950959ac0604bf24288c0924bd4a127b53094fb12",
+      "origin": "public-specific documentation or configuration"
+    },
+    {
+      "path": "NOTICE.md",
+      "sha256": "77ad65d5a2b6e1c5d9f34eb89eee2537a2265d35e5830204ef0abb5833b8bd6d",
+      "origin": "public-specific documentation or configuration"
+    },
+    {
+      "path": "README.md",
+      "sha256": "8386703ebd606d2e90d4413653b017fed26298a88933d8f3115540a6de01dd1e",
+      "origin": "public-specific documentation or configuration"
+    },
+    {
+      "path": "canon/symbols/gearboy_symbols.sym",
+      "sha256": "c7770cb20def239cc68908f69648c92a52508b1059fcfdf2490a6ff543375b65",
+      "source_path": "canon/symbols/gearboy_symbols.sym",
+      "source_sha256": "d8b5e7ab9102394fa5233a909eb7405732e78abf27b4c05e9aaebfe21741e754",
+      "adapted_for_export": true
+    },
+    {
+      "path": "canon/symbols/symbols.json",
+      "sha256": "7cf8cf6a513b1230f9f20da26c0ec0ad79d84403167fa82a37c863f190573535",
+      "source_path": "canon/symbols/symbols.json",
+      "source_sha256": "7cf8cf6a513b1230f9f20da26c0ec0ad79d84403167fa82a37c863f190573535",
+      "adapted_for_export": false
+    },
+    {
+      "path": "docs/publication-review.md",
+      "sha256": "b0f95eec809011cc223ebeee860e9c8c2a1c0b249e9a3f2b9010ad81081cd091",
+      "origin": "public-specific documentation or configuration"
+    },
+    {
+      "path": "docs/publication.md",
+      "sha256": "fa836cf516dd227293ee779b366041e407e7d944ed1424acb1cea07e7a9e80c1",
+      "origin": "public-specific documentation or configuration"
+    },
+    {
+      "path": "docs/research.md",
+      "sha256": "d42040d1e15dcfc0d1de4844124f2f2590fb2bfea1a4b5b72bbaa845c35356b5",
+      "origin": "public-specific documentation or configuration"
+    },
+    {
+      "path": "models/animation_model.js",
+      "sha256": "a7b9ee3e6fb17ec964a2ed87cbd6af89db1b3f5ce8408cbc54e88e7bc4f58bc4",
+      "source_path": "models/animation_model.js",
+      "source_sha256": "a7b9ee3e6fb17ec964a2ed87cbd6af89db1b3f5ce8408cbc54e88e7bc4f58bc4",
+      "adapted_for_export": false
+    },
+    {
+      "path": "models/camera_contract.js",
+      "sha256": "b05968742130462a6a0086dbe37bb01bdb08081046d7af8de666479bd62e9c41",
+      "source_path": "models/camera_contract.js",
+      "source_sha256": "b05968742130462a6a0086dbe37bb01bdb08081046d7af8de666479bd62e9c41",
+      "adapted_for_export": false
+    },
+    {
+      "path": "models/overworld_model.js",
+      "sha256": "663079f60ee1d92a55423bd37b908a1e03e4903c7651130067c4edac4dfe9d12",
+      "source_path": "models/overworld_model.js",
+      "source_sha256": "ddea88a86060b26556d9b3d351eb13a1b4a53196f5b6c73247700d4a7845f235",
+      "adapted_for_export": true
+    },
+    {
+      "path": "models/platforming_model.js",
+      "sha256": "589d4ae1808f1286305fb2c103507dd19c0f30ac26b67e5d1422c441205d9fcb",
+      "source_path": "models/platforming_model.js",
+      "source_sha256": "12b8e34eb3c3982afe95d280ad45a3be9bebb69a843459813a0eed1f27382150",
+      "adapted_for_export": true
+    },
+    {
+      "path": "models/player_collision_model.js",
+      "sha256": "8280292291b446e37cfdf0e1069632b9f2d35f0d73c9bab6da56f00c3aed2e3d",
+      "source_path": "models/player_collision_model.js",
+      "source_sha256": "97e2fd0386bab4b79930524c2a7137c0357cf860de798a9ef67bb3db2fc826cd",
+      "adapted_for_export": true
+    },
+    {
+      "path": "rom/README.md",
+      "sha256": "305fdb4618cf1213a2022b80d39167b14c4e0a08d59490c7635917dfe88956be",
+      "origin": "public-specific documentation or configuration"
+    },
+    {
+      "path": "tests/model_regressions.mjs",
+      "sha256": "6a878f9726c1f7b924f4df8f0c1190990862555b851308863949c4e847a8ac45",
+      "source_path": "tests/model_regressions.mjs",
+      "source_sha256": "6a878f9726c1f7b924f4df8f0c1190990862555b851308863949c4e847a8ac45",
+      "adapted_for_export": false
+    },
+    {
+      "path": "tools/decode_overworld_cache.py",
+      "sha256": "ea742cd62ed63a2f6971ae2b3747e177b6a0a27a8f2477d37a8f0ac17310ce45",
+      "source_path": "tools/decode_overworld_cache.py",
+      "source_sha256": "d042c0da20588f73741283638c823d0449c0a7a974b8f099a7af08007f46ffdf",
+      "adapted_for_export": true
+    },
+    {
+      "path": "tools/gb_tile_decode.py",
+      "sha256": "275245a797bfc399f85a3ecb851d7a12aec4cb2909afcf921614992d96dc786c",
+      "source_path": "tools/gb_tile_decode.py",
+      "source_sha256": "275245a797bfc399f85a3ecb851d7a12aec4cb2909afcf921614992d96dc786c",
+      "adapted_for_export": false
+    },
+    {
+      "path": "tools/gq_survey.py",
+      "sha256": "f6650d2522693078a64de16703e59fb6c4857565ddc1fdc19d29b4f662fb541a",
+      "source_path": "tools/gq_survey.py",
+      "source_sha256": "f6650d2522693078a64de16703e59fb6c4857565ddc1fdc19d29b4f662fb541a",
+      "adapted_for_export": false
+    },
+    {
+      "path": "tools/verify_project_inputs.py",
+      "sha256": "2c523b6f4cb3cbc71f990c372da0821ce765621aa1ac8df3ded7d7d36ea7d327",
+      "source_path": "tools/verify_project_inputs.py",
+      "source_sha256": "587d20c38004b585ead87faa579cb31931f21ccdd30057e0e8f41a1d1baf0831",
+      "adapted_for_export": true
+    }
+  ]
+}
